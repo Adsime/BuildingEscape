@@ -52,8 +52,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 }
 
 float UOpenDoor::GetTotalMassOfActorsOnPlate() {
-	return totalMass = 0.f;
+	float totalMass = 0.f;
 
-	pressurePlate->
 	return totalMass;
 }
