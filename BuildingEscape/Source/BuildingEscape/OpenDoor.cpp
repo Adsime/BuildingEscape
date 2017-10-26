@@ -3,6 +3,8 @@
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
+#include "Runtime/Core/Public/Containers/Array.h"
+#include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -19,16 +21,21 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	owner = GetOwner();
 	defaultYaw = GetOwner()->GetActorRotation().Yaw;
+
+	if (!pressurePlate) {
+		UE_LOG(LogTemp, Error, TEXT("%s missing pressure plate"), *GetOwner()->GetName());
+	}
 	// ...
 	
 }
 
 void UOpenDoor::OpenDoor() {
-	float yaw = GetOwner()->GetActorRotation().Yaw;
-	FRotator newRotation = FRotator(0.f, defaultYaw + openAngle, 0.f);
-	GetOwner()->SetActorRotation(newRotation);
+	//float yaw = GetOwner()->GetActorRotation().Yaw;
+	//FRotator newRotation = FRotator(0.f, defaultYaw + openAngle, 0.f);
+	//GetOwner()->SetActorRotation(newRotation);
+	OnOpenRequest.Broadcast();
 }
 
 void UOpenDoor::CloseDoor() {
@@ -53,6 +60,14 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 float UOpenDoor::GetTotalMassOfActorsOnPlate() {
 	float totalMass = 0.f;
+
+	TArray<AActor*> OverlappingActors;
+	if (!pressurePlate) return totalMass;
+	pressurePlate->GetOverlappingActors(OUT OverlappingActors);
+
+	for (const auto* actor : OverlappingActors) {
+		totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
 
 	return totalMass;
 }
