@@ -22,7 +22,6 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	owner = GetOwner();
-	defaultYaw = GetOwner()->GetActorRotation().Yaw;
 
 	if (!pressurePlate) {
 		UE_LOG(LogTemp, Error, TEXT("%s missing pressure plate"), *GetOwner()->GetName());
@@ -31,29 +30,15 @@ void UOpenDoor::BeginPlay()
 	
 }
 
-void UOpenDoor::OpenDoor() {
-	//float yaw = GetOwner()->GetActorRotation().Yaw;
-	//FRotator newRotation = FRotator(0.f, defaultYaw + openAngle, 0.f);
-	//GetOwner()->SetActorRotation(newRotation);
-	OnOpenRequest.Broadcast();
-}
-
-void UOpenDoor::CloseDoor() {
-	float yaw = GetOwner()->GetActorRotation().Yaw;
-	FRotator newRotation = FRotator(0.f, defaultYaw, 0.f);
-	GetOwner()->SetActorRotation(newRotation);
-}
-
-
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (GetTotalMassOfActorsOnPlate() > 20.f) {
-		OpenDoor();
+	if (GetTotalMassOfActorsOnPlate() > triggerMass) {
+		OnOpen.Broadcast();
 	}
 	else {
-		CloseDoor();
+		OnClose.Broadcast();
 	}
 	// ...
 }
